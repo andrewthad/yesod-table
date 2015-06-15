@@ -1,9 +1,33 @@
+{-| Table building library for yesod
+
+    This library is intended to be brought in by a qualified import
+    along with type import as follows:
+
+> import qualified Yesod.Table as Table
+> import Yesod.Table (Table)
+
+    There are two types in this module: 'Table' and 'Column'. Roughly, a 
+    'Table' is just a list of 'Column's. Except in the case of rendering
+    a 'Table', you should not need to use the data constructors of 
+    either of these types. (In fact, you should not need to refer to 
+    the type 'Column' either). Instead, you should use the functions
+    'singleton', 'text', 'int', etc. to build singleton 'Table's
+    (a 'Table' with only one 'Column') and use monoidal concatenation
+    to combine these.
+
+    If you want to define your own table rendering function (and it's
+    likely that you will), then you will need the aforementioned data 
+    constructors. You can look at the source of 'buildBootstrap' for 
+    an example of how to do this.
+-}
 module Yesod.Table 
   ( Table(..)
   , Column(..)
   , buildBootstrap
-  , single
+  , singleton
+  , widget
   , text
+  , int
   , linked
   ) where
 
@@ -20,13 +44,13 @@ import qualified Data.Text as Text
 import Data.Foldable (forM_, mapM_)
 import Data.Monoid
 
+newtype Table site a = Table (Seq (Column site a))
+  deriving (Monoid)
+
 data Column site a = Column
   { header :: !(WidgetT site IO ())
   , cell :: !(a -> WidgetT site IO ()) 
   }
-
-newtype Table site a = Table (Seq (Column site a))
-  deriving (Monoid)
 
 instance Contravariant (Column site) where
   contramap g (Column h c) = Column h (c . g)
@@ -34,14 +58,32 @@ instance Contravariant (Column site) where
 instance Contravariant (Table site) where
   contramap g (Table cols) = Table (fmap (contramap g) cols)
 
-single :: WidgetT site IO () -> (a -> WidgetT site IO ()) -> Table site a
-single c h = Table (Seq.singleton (Column c h))
+-- | This is the most primitive and essential operation for building a 'Table'.
+--   All other table-building functions (such as 'widget', 'text', and 'linked')
+--   build on top of 'singleton'. One common trend in the convenience functions 
+--   is that they accept 'Text' as the table header. This is done because I have 
+--   found that it is uncommon to need the full power of HTML in the header.
+--   Just know that if you need it, this function is the only way to get it.
+--   The first argument is a widget that is
+--   content to be displayed in the table header. The second argument is the
+--   a function that consumes a value to produce the content shown in a row of the
+--   table body. 
+singleton :: WidgetT site IO () -> (a -> WidgetT site IO ()) -> Table site a
+singleton c h = Table (Seq.singleton (Column c h))
+
+-- | This is the same as 'singleton', with the convenience of accepting 
+--   the table header as 'Text'.
+widget :: Text -> (a -> WidgetT site IO ()) -> Table site a
+widget h c = singleton (textToWidget h) c
 
 text :: Text -> (a -> Text) -> Table site a
-text h c = single (textToWidget h) (textToWidget . c)
+text h c = singleton (textToWidget h) (textToWidget . c)
+
+int :: Text -> (a -> Int) -> Table site a
+int h c = singleton (textToWidget h) (textToWidget . Text.pack . show . c)
 
 linked :: Text -> (a -> Text) -> (a -> Route site) -> Table site a
-linked h propFunc routeFunc = single (textToWidget h) render
+linked h propFunc routeFunc = singleton (textToWidget h) render
   where render a = [whamlet|<a href=@{routeFunc a}>#{propFunc a}|]
 
 buildBootstrap :: Table site a -> [a] -> WidgetT site IO ()
