@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                yesod-table
-version:             0.1.2
+version:             0.1.3
 synopsis:            HTML tables for Yesod
 description:         HTML tables for Yesod
 license:             MIT

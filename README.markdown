@@ -9,9 +9,9 @@ of columns, where each column has two parts:
   2. A function for visualizing the data (`a -> WidgetT site IO ()`)
 
 #### Where can I find a working example?
-In the examples folder, the is a single-file yesod application that demonstrates 
+In the examples folder, there is a single-file yesod application that demonstrates 
 how yesod-table works. It first show how the `Monoid` instance is used to build
-smaller pieces into a larger table, and then it combines those table, making 
+smaller pieces into a larger table, and then it combines those tables, making 
 use of the `Contravariant` instance.
 
 #### How can I use this?

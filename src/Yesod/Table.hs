@@ -31,6 +31,7 @@ module Yesod.Table
   , singleton
   , widget
   , text
+  , string
   , int
   , linked
   ) where
@@ -80,13 +81,39 @@ singleton c h = Table (Seq.singleton (Column c h))
 widget :: Text -> (a -> WidgetT site IO ()) -> Table site a
 widget h c = singleton (textToWidget h) c
 
+-- | Identical to 'widget', with the convenience of accepting 
+--   the table cell content as 'Text'.
 text :: Text -> (a -> Text) -> Table site a
 text h c = singleton (textToWidget h) (textToWidget . c)
 
+-- | Identical to 'widget', with the convenience of accepting 
+--   the table cell content as 'String'.
+string :: Text -> (a -> String) -> Table site a
+string h c = singleton (textToWidget h) (textToWidget . Text.pack . c)
+
+-- | Identical to 'widget', with the convenience of accepting 
+--   the table cell content as 'Int'.
 int :: Text -> (a -> Int) -> Table site a
 int h c = singleton (textToWidget h) (textToWidget . Text.pack . show . c)
 
-linked :: Text -> (a -> Text) -> (a -> Route site) -> Table site a
+-- | Convenience function for building a plaintext link where the link text and the route are 
+--   determined by the row of data. If you are working with an 
+--   ...Entity... (from ...persistent...) and your foundation type 
+--   is named ...App... you may want something like this:
+--
+--   > myTable :: Table App (Entity Foo)
+--   > myTable = mempty
+--   >   <> Table.linked "Name" (fooName . entityVal) (FooEditR . entityKey)
+--   >   <> Table.int    "Size" (fooSize . entityVal)
+--
+--   This is the blueprint for a two-column table. The first column is
+--   a link for editing the Foo, and the linked text is the ...Foo... name.
+--   The second column is just a number representing the size of the ...Foo...
+--   shown as plaintext.
+linked :: Text               -- ^ Column name
+       -> (a -> Text)        -- ^ Text extracting function
+       -> (a -> Route site)  -- ^ Route extracting function
+       -> Table site a       
 linked h propFunc routeFunc = singleton (textToWidget h) render
   where render a = [whamlet|<a href=@{routeFunc a}>#{propFunc a}|]
 
