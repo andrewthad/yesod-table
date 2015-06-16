@@ -15,6 +15,10 @@
     (a 'Table' with only one 'Column') and use monoidal concatenation
     to combine these.
 
+    It is important to note that, as defined in this library, 'Table' 
+    refers to a blueprint for an HTML table, not a complete table with 
+    content.
+
     If you want to define your own table rendering function (and it's
     likely that you will), then you will need the aforementioned data 
     constructors. You can look at the source of 'buildBootstrap' for 
@@ -86,9 +90,16 @@ linked :: Text -> (a -> Text) -> (a -> Route site) -> Table site a
 linked h propFunc routeFunc = singleton (textToWidget h) render
   where render a = [whamlet|<a href=@{routeFunc a}>#{propFunc a}|]
 
+-- | From a 'Table' blueprint and a list of the data that it accepts,
+--   build the actual html needed to visualize this data. This particular 
+--   rendering of the data applies the classes ...table... and ...table-striped...
+--   to the ...<table>... element. If you are using bootstrap, this means that
+--   it will be formatted in the bootstrap way. If not, the table will still 
+--   render correctly, but the classes will be renamed. I'm open to pull requests
+--   for supporting other common table formats out of the box.
 buildBootstrap :: Table site a -> [a] -> WidgetT site IO ()
 buildBootstrap (Table cols) vals = table $ do
-  thead $ mapM_ (td . header) cols
+  thead $ mapM_ (th . header) cols
   tbody $ forM_ vals $ \val -> tr $ forM_ cols $ \col -> td $ cell col val
   where table b  = [whamlet|
                      <table.table.table-striped>^{b}
@@ -100,6 +111,9 @@ buildBootstrap (Table cols) vals = table $ do
                    |]
         td b     = [whamlet|
                      <td>^{b}
+                   |]
+        th b     = [whamlet|
+                     <th>^{b}
                    |]
         tbody b  = [whamlet|
                      <tbody>^{b}
