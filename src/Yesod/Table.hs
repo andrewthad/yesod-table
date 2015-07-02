@@ -34,9 +34,11 @@ module Yesod.Table
   , string
   , int
   , linked
+  , when
+  , maybe
   ) where
 
-import Prelude hiding (mapM_)
+import Prelude hiding (mapM_,when,maybe)
 import Yesod.Core
 import Yesod.Core.Widget
 import Data.Functor.Contravariant
@@ -48,6 +50,7 @@ import qualified Data.Text as Text
 -- import Control.Monad
 import Data.Foldable (forM_, mapM_)
 import Data.Monoid
+import qualified Data.Maybe as M
 
 newtype Table site a = Table (Seq (Column site a))
   deriving (Monoid)
@@ -69,7 +72,7 @@ instance Contravariant (Table site) where
 --   is that they accept 'Text' as the table header. This is done because I have 
 --   found that it is uncommon to need the full power of HTML in the header.
 --   Just know that if you need it, this function is the only way to get it.
---   The first argument is a widget that is
+--   The first argument is a widget that is the
 --   content to be displayed in the table header. The second argument is the
 --   a function that consumes a value to produce the content shown in a row of the
 --   table body. 
@@ -98,8 +101,8 @@ int h c = singleton (textToWidget h) (textToWidget . Text.pack . show . c)
 
 -- | Convenience function for building a plaintext link where the link text and the route are 
 --   determined by the row of data. If you are working with an 
---   ...Entity... (from ...persistent...) and your foundation type 
---   is named ...App... you may want something like this:
+--   @Entity@ (from @persistent@) and your foundation type 
+--   is named @App@ you may want something like this:
 --
 --   > myTable :: Table App (Entity Foo)
 --   > myTable = mempty
@@ -107,8 +110,8 @@ int h c = singleton (textToWidget h) (textToWidget . Text.pack . show . c)
 --   >   <> Table.int    "Size" (fooSize . entityVal)
 --
 --   This is the blueprint for a two-column table. The first column is
---   a link for editing the Foo, and the linked text is the ...Foo... name.
---   The second column is just a number representing the size of the ...Foo...
+--   a link for editing the Foo, and the linked text is the @Foo@ name.
+--   The second column is just a number representing the size of the @Foo@
 --   shown as plaintext.
 linked :: Text               -- ^ Column name
        -> (a -> Text)        -- ^ Text extracting function
@@ -117,10 +120,46 @@ linked :: Text               -- ^ Column name
 linked h propFunc routeFunc = singleton (textToWidget h) render
   where render a = [whamlet|<a href=@{routeFunc a}>#{propFunc a}|]
 
+-- | Prevents showing values
+--   in a 'Table' if a condition is not met. Example
+--
+--   > myTable :: Table App Person
+--   > myTable = mempty
+--   >   <> Table.text "Name" personName
+--   >   <> Table.when (\p -> personAge p > 21) (Table.int "Age" personAge)
+--
+--   In this example, the table header Age will always show up with its
+--   corresponding column, but any row for a person under 21 will have
+--   a empty value for that column. The effect can be more profound:
+--   
+--   > myTable :: Table App Person
+--   > myTable = mempty
+--   >   <> Table.text "Name" personName
+--   >   <> Table.when (\p -> personAge p > 21) (mempty
+--   >     <> Table.text "Favorite Color" personFavoriteColor
+--   >     <> Table.text "Address" personAddress
+--   >     <> Table.linked "Profile Page" (const "Profile") (ProfileR . personUsername)
+--   >     )
+--
+--   This second example does not show information for any of the last three 
+--   columns if the person is under 21. The columns themselves though are always 
+--   present regardless of whether or not any values satisfy the predicate.
+when :: (a -> Bool)   -- ^ Predicate
+     -> Table site a  -- ^ Existing table
+     -> Table site a  
+when pred (Table cols) = Table $ fmap (\(Column h c) -> Column h (\a -> if pred a then c a else mempty)) cols
+
+-- | Promote a 'Table' to take 'Maybe' values. When the data
+--   passed in matches the 'Just' data constructor, the row 
+--   is presented as it would be with the original table.
+--   When it is 'Nothing', the row is empty.
+maybe :: Table site a -> Table site (Maybe a)
+maybe (Table cols) = Table $ fmap (\(Column h c) -> Column h (M.maybe mempty c)) cols
+
 -- | From a 'Table' blueprint and a list of the data that it accepts,
 --   build the actual html needed to visualize this data. This particular 
---   rendering of the data applies the classes ...table... and ...table-striped...
---   to the ...<table>... element. If you are using bootstrap, this means that
+--   rendering of the data applies the classes @table@ and @table-striped@
+--   to the @<table>@ element. If you are using bootstrap, this means that
 --   it will be formatted in the bootstrap way. If not, the table will still 
 --   render correctly, but the classes will be renamed. I'm open to pull requests
 --   for supporting other common table formats out of the box.

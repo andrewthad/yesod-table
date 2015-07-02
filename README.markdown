@@ -5,12 +5,12 @@ yesod-table
 This is a library that provides an abstraction for building HTML tables. A table is 
 parameterized over a foundation type `site` and any type `a`. The table is a collection
 of columns, where each column has two parts:
-  1. A title (`WidgetT site IO ()`)
-  2. A function for visualizing the data (`a -> WidgetT site IO ()`)
+  1. A title: `WidgetT site IO ()`
+  2. A function for visualizing the data: `a -> WidgetT site IO ()`
 
 #### Where can I find a working example?
 In the examples folder, there is a single-file yesod application that demonstrates 
-how yesod-table works. It first show how the `Monoid` instance is used to build
+how yesod-table works. It first shows how the `Monoid` instance is used to build
 smaller pieces into a larger table, and then it combines those tables, making 
 use of the `Contravariant` instance.
 
