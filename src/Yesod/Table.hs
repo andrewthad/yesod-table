@@ -42,6 +42,7 @@ import Prelude hiding (mapM_,when,maybe)
 import Yesod.Core
 import Yesod.Core.Widget
 import Data.Functor.Contravariant
+import Data.Functor.Contravariant.Divisible
 import Data.Sequence (Seq)
 import qualified Data.Sequence as Seq
 import Data.Text (Text)
@@ -65,6 +66,12 @@ instance Contravariant (Column site) where
 
 instance Contravariant (Table site) where
   contramap g (Table cols) = Table (fmap (contramap g) cols)
+
+instance Divisible (Table site) where
+  conquer = mempty
+  divide f (Table aCols) (Table bCols) = Table $ 
+    (fmap (contramap (fst . f)) aCols) <> 
+    (fmap (contramap (snd . f)) bCols)
 
 -- | This is the most primitive and essential operation for building a 'Table'.
 --   All other table-building functions (such as 'widget', 'text', and 'linked')
