@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                yesod-table
-version:             1.0.0
+version:             1.0.1
 synopsis:            HTML tables for Yesod
 description:         HTML tables for Yesod
 license:             MIT
@@ -10,10 +10,8 @@ license-file:        LICENSE
 author:              Andrew Martin
 maintainer:          andrew.thaddeus@gmail.com
 homepage:            https://github.com/andrewthad/yesod-table
--- copyright:           
 category:            Web
 build-type:          Simple
--- extra-source-files:  
 cabal-version:       >=1.10
 
 library
