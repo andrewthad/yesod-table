@@ -35,7 +35,9 @@ module Yesod.Table
   , int
   , linked
   , when
+  , whenWith
   , maybe
+  , maybeWith
   ) where
 
 import Prelude hiding (mapM_,when,maybe)
@@ -154,14 +156,24 @@ linked h propFunc routeFunc = singleton (textToWidget h) render
 when :: (a -> Bool)   -- ^ Predicate
      -> Table site a  -- ^ Existing table
      -> Table site a  
-when pred (Table cols) = Table $ fmap (\(Column h c) -> Column h (\a -> if pred a then c a else mempty)) cols
+when = whenWith mempty
+
+whenWith :: WidgetT site IO () -- ^ Contents when predicate is false
+        -> (a -> Bool)        -- ^ Predicate
+        -> Table site a       -- ^ Existing table
+        -> Table site a  
+whenWith defContents pred (Table cols) = Table $ fmap (\(Column h c) -> Column h (\a -> if pred a then c a else defContents)) cols
+
 
 -- | Promote a 'Table' to take 'Maybe' values. When the data
 --   passed in matches the 'Just' data constructor, the row 
 --   is presented as it would be with the original table.
 --   When it is 'Nothing', the row is empty.
 maybe :: Table site a -> Table site (Maybe a)
-maybe (Table cols) = Table $ fmap (\(Column h c) -> Column h (M.maybe mempty c)) cols
+maybe = maybeWith mempty
+
+maybeWith :: WidgetT site IO () -> Table site a -> Table site (Maybe a)
+maybeWith defContents (Table cols) = Table $ fmap (\(Column h c) -> Column h (M.maybe defContents c)) cols
 
 -- | From a 'Table' blueprint and a list of the data that it accepts,
 --   build the actual html needed to visualize this data. This particular 
