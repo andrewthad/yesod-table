@@ -127,7 +127,7 @@ linked :: Text               -- ^ Column name
        -> (a -> Route site)  -- ^ Route extracting function
        -> Table site a       
 linked h propFunc routeFunc = singleton (textToWidget h) render
-  where render a = [whamlet|<a href=@{routeFunc a}>#{propFunc a}|]
+  where render a = asWidgetIO [whamlet|<a href=@{routeFunc a}>#{propFunc a}|]
 
 -- | Prevents showing values
 --   in a 'Table' if a condition is not met. Example
@@ -186,26 +186,32 @@ buildBootstrap :: Table site a -> [a] -> WidgetT site IO ()
 buildBootstrap (Table cols) vals = table $ do
   thead $ mapM_ (th . header) cols
   tbody $ forM_ vals $ \val -> tr $ forM_ cols $ \col -> td $ cell col val
-  where table b  = [whamlet|
+  where table b  = asWidgetIO [whamlet|
                      <table.table.table-striped>^{b}
                    |]
-        thead b  = [whamlet|
+        thead b  = asWidgetIO [whamlet|
                      <thead>
                        <tr>
                          ^{b}
                    |]
-        td b     = [whamlet|
+        td b     = asWidgetIO [whamlet|
                      <td>^{b}
                    |]
-        th b     = [whamlet|
+        th b     = asWidgetIO [whamlet|
                      <th>^{b}
                    |]
-        tbody b  = [whamlet|
+        tbody b  = asWidgetIO [whamlet|
                      <tbody>^{b}
                    |]
-        tr b     = [whamlet|
+        tr b     = asWidgetIO [whamlet|
                      <tr>^{b}
                    |]
+
+-- This function is used to constrain types so that
+-- GHC 7.10 will quit giving me errors about
+-- needing to use FlexibleContexts.
+asWidgetIO :: WidgetT site IO () -> WidgetT site IO ()
+asWidgetIO = id
 
 textToWidget :: Text -> WidgetT site IO ()
 textToWidget = toWidget . toHtml
