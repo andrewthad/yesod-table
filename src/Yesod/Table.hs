@@ -32,6 +32,7 @@ module Yesod.Table
   , widget
   , text
   , string
+  , show
   , int
   , linked
   , when
@@ -40,7 +41,8 @@ module Yesod.Table
   , maybeWith
   ) where
 
-import Prelude hiding (mapM_,when,maybe)
+import Prelude hiding (mapM_,when,maybe,show)
+import qualified Prelude as Prelude
 import Yesod.Core
 import Yesod.Core.Widget
 import Data.Functor.Contravariant
@@ -106,13 +108,12 @@ string h c = singleton (textToWidget h) (textToWidget . Text.pack . c)
 -- | Identical to 'widget', with the convenience of accepting 
 --   the table cell content as 'Int'.
 int :: Text -> (a -> Int) -> Table site a
-int h c = singleton (textToWidget h) (textToWidget . Text.pack . show . c)
-
+int h c = singleton (textToWidget h) (textToWidget . Text.pack . Prelude.show . c)
 
 -- | Identical to 'widget', with the convenience of accepting 
---   the table cell content as any type with an instance of Show.
-content :: (Show b) => Text -> (a -> b) -> Table site a
-content h c = singleton (textToWidget h) (textToWidget . Text.pack . show . c)
+--   the table cell content as any type with an instance of 'Show'.
+show :: (Show b) => Text -> (a -> b) -> Table site a
+show h c = singleton (textToWidget h) (textToWidget . Text.pack . Prelude.show . c)
 
 
 -- | Convenience function for building a plaintext link where the link text and the route are 
