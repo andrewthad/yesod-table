@@ -108,6 +108,13 @@ string h c = singleton (textToWidget h) (textToWidget . Text.pack . c)
 int :: Text -> (a -> Int) -> Table site a
 int h c = singleton (textToWidget h) (textToWidget . Text.pack . show . c)
 
+
+-- | Identical to 'widget', with the convenience of accepting 
+--   the table cell content as any type with an instance of Show.
+content :: (Show b) => Text -> (a -> b) -> Table site a
+content h c = singleton (textToWidget h) (textToWidget . Text.pack . show . c)
+
+
 -- | Convenience function for building a plaintext link where the link text and the route are 
 --   determined by the row of data. If you are working with an 
 --   @Entity@ (from @persistent@) and your foundation type 
