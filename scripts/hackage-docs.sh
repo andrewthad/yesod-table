@@ -35,7 +35,7 @@ trap 'rm -r "$dir"' EXIT
 # cabal haddock --hoogle --hyperlink-source --html-location='/package/$pkg-$version/docs' --contents-location='/package/$pkg-$version'
 stack haddock
 
-cp -R .stack-work/dist/x86_64-linux/Cabal-1.18.1.5/doc/html/$pkg/ $dir/$pkg-$ver-docs
+cp -R .stack-work/dist/x86_64-linux/Cabal-1.22.2.0/doc/html/$pkg/ $dir/$pkg-$ver-docs
 
 tar cvz -C $dir --format=ustar -f $dir/$pkg-$ver-docs.tar.gz $pkg-$ver-docs
 
