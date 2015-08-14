@@ -1,5 +1,5 @@
 name:                yesod-table
-version:             1.0.3
+version:             1.0.4
 synopsis:            HTML tables for Yesod
 description:         HTML tables for Yesod
 license:             MIT
@@ -17,6 +17,7 @@ library
                      , containers   >= 0.3.0.0
                      , contravariant   >= 1.0
                      , text         >= 1.0
+                     , bytestring   >= 0.9
   exposed-modules:     Yesod.Table
   default-extensions:  QuasiQuotes
                      , GeneralizedNewtypeDeriving

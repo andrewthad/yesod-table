@@ -32,6 +32,7 @@ module Yesod.Table
   , widget
   , text
   , string
+  , bytestring
   , show
   , int
   , linked
@@ -50,7 +51,9 @@ import Data.Functor.Contravariant.Divisible
 import Data.Sequence (Seq)
 import qualified Data.Sequence as Seq
 import Data.Text (Text)
+import Data.ByteString (ByteString)
 import qualified Data.Text as Text
+import Data.Text.Encoding (decodeUtf8')
 
 -- import Control.Monad
 import Data.Foldable (forM_, mapM_)
@@ -104,6 +107,16 @@ text h c = singleton (textToWidget h) (textToWidget . c)
 --   the table cell content as 'String'.
 string :: Text -> (a -> String) -> Table site a
 string h c = singleton (textToWidget h) (textToWidget . Text.pack . c)
+
+-- | Identical to 'widget', with the convenience of accepting 
+--   the table cell content as 'ByteString'. If the 'ByteString'
+--   is not encoded as UTF8-encoded text, the cell will display 
+--   text indicating that non-text data was given.
+bytestring :: Text -> (a -> ByteString) -> Table site a
+bytestring h c = singleton (textToWidget h) (bytestringToWidget . c)
+  where bytestringToWidget b = case decodeUtf8' b of
+          Left _ -> textToWidget (Text.pack "Unrenderable binary data")
+          Right t -> toWidget (toHtml t)
 
 -- | Identical to 'widget', with the convenience of accepting 
 --   the table cell content as 'Int'.
