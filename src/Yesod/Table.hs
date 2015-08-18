@@ -34,6 +34,7 @@ module Yesod.Table
   , string
   , bytestring
   , show
+  , printf
   , int
   , linked
   , when
@@ -43,18 +44,18 @@ module Yesod.Table
   ) where
 
 import Prelude hiding (mapM_,when,maybe,show)
-import qualified Prelude as Prelude
 import Yesod.Core
 import Yesod.Core.Widget
 import Data.Functor.Contravariant
 import Data.Functor.Contravariant.Divisible
 import Data.Sequence (Seq)
-import qualified Data.Sequence as Seq
 import Data.Text (Text)
 import Data.ByteString (ByteString)
-import qualified Data.Text as Text
 import Data.Text.Encoding (decodeUtf8')
-import qualified Text.Printf as PR
+import qualified Prelude as Prelude
+import qualified Data.Sequence as Seq
+import qualified Data.Text as Text
+import qualified Text.Printf as Printf
 
 -- import Control.Monad
 import Data.Foldable (forM_, mapM_)
@@ -129,11 +130,10 @@ int h c = singleton (textToWidget h) (textToWidget . Text.pack . Prelude.show . 
 show :: (Show b) => Text -> (a -> b) -> Table site a
 show h c = singleton (textToWidget h) (textToWidget . Text.pack . Prelude.show . c)
 
-
 -- | Identical to 'widget', but allow to format the output with the syntax of 'Text.Printf.printf'
--- The datatype to be use must be an instance of 'Text.Printf.PrintfArg'
-printf :: (PR.PrintfArg b) => Text -> String -> (a -> b) -> Table site a
-printf h format c = singleton (textToWidget h) (textToWidget . Text.pack . PR.printf format . c)
+-- The datatype used must be an instance of 'Text.Printf.PrintfArg'
+printf :: (Printf.PrintfArg b) => Text -> String -> (a -> b) -> Table site a
+printf h format c = singleton (textToWidget h) (textToWidget . Text.pack . Printf.printf format . c)
 
 -- | Convenience function for building a plaintext link where the link text and the route are 
 --   determined by the row of data. If you are working with an 
