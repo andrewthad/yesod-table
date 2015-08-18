@@ -54,6 +54,7 @@ import Data.Text (Text)
 import Data.ByteString (ByteString)
 import qualified Data.Text as Text
 import Data.Text.Encoding (decodeUtf8')
+import qualified Text.Printf as PR
 
 -- import Control.Monad
 import Data.Foldable (forM_, mapM_)
@@ -128,6 +129,11 @@ int h c = singleton (textToWidget h) (textToWidget . Text.pack . Prelude.show . 
 show :: (Show b) => Text -> (a -> b) -> Table site a
 show h c = singleton (textToWidget h) (textToWidget . Text.pack . Prelude.show . c)
 
+
+-- | Identical to 'widget', but allow to format the output with the syntax of 'Text.Printf.printf'
+-- The datatype to be use must be an instance of 'Text.Printf.PrintfArg'
+printf :: (PR.PrintfArg b) => Text -> String -> (a -> b) -> Table site a
+printf h format c = singleton (textToWidget h) (textToWidget . Text.pack . PR.printf format . c)
 
 -- | Convenience function for building a plaintext link where the link text and the route are 
 --   determined by the row of data. If you are working with an 
