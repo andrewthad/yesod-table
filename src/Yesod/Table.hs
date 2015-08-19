@@ -42,6 +42,7 @@ module Yesod.Table
   , whenWith
   , maybe
   , maybeWith
+  , bool
   ) where
 
 import Prelude hiding (mapM_,when,maybe,show,const)
@@ -208,6 +209,12 @@ maybe = maybeWith mempty
 
 maybeWith :: WidgetT site IO () -> Table site a -> Table site (Maybe a)
 maybeWith defContents (Table cols) = Table $ fmap (\(Column h c) -> Column h (M.maybe defContents c)) cols
+
+-- | Then is roughly an if-then-else construct with the latter two clauses 
+--   (then and else) reversed. The name is taken from
+--   the 'bool' function in 'Data.Bool'. 
+bool :: Text -> (a -> Bool) -> (a -> WidgetT site IO ()) -> (a -> WidgetT site IO ()) -> Table site a
+bool name f ifFalse ifTrue = widget name $ \a -> if f a then ifTrue a else ifTrue a
 
 -- | From a 'Table' blueprint and a list of the data that it accepts,
 --   build the actual html needed to visualize this data. This particular 
