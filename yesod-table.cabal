@@ -1,5 +1,5 @@
 name:                yesod-table
-version:             1.0.5
+version:             1.0.6
 synopsis:            HTML tables for Yesod
 description:         HTML tables for Yesod
 license:             MIT
