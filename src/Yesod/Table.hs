@@ -30,6 +30,7 @@ module Yesod.Table
   , buildBootstrap
   , singleton
   , widget
+  , const
   , text
   , string
   , bytestring
@@ -43,7 +44,7 @@ module Yesod.Table
   , maybeWith
   ) where
 
-import Prelude hiding (mapM_,when,maybe,show)
+import Prelude hiding (mapM_,when,maybe,show,const)
 import Yesod.Core
 import Yesod.Core.Widget
 import Data.Functor.Contravariant
@@ -99,6 +100,12 @@ singleton c h = Table (Seq.singleton (Column c h))
 --   the table header as 'Text'.
 widget :: Text -> (a -> WidgetT site IO ()) -> Table site a
 widget h c = singleton (textToWidget h) c
+
+-- | This is the same as 'widget', but the table cell content it produces
+--   is constant, meaning that the table cell in this column will be 
+--   the same for all rows.
+const :: Text -> WidgetT site IO () -> Table site a
+const h c = singleton (textToWidget h) (Prelude.const c)
 
 -- | Identical to 'widget', with the convenience of accepting 
 --   the table cell content as 'Text'.
