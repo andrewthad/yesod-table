@@ -106,24 +106,24 @@ widget h c = singleton (textToWidget h) c
 --   is constant, meaning that the table cell in this column will be 
 --   the same for all rows.
 const :: Text -> WidgetT site IO () -> Table site a
-const h c = singleton (textToWidget h) (Prelude.const c)
+const h c = widget h (Prelude.const c)
 
 -- | Identical to 'widget', with the convenience of accepting 
 --   the table cell content as 'Text'.
 text :: Text -> (a -> Text) -> Table site a
-text h c = singleton (textToWidget h) (textToWidget . c)
+text h c = widget h (textToWidget . c)
 
 -- | Identical to 'widget', with the convenience of accepting 
 --   the table cell content as 'String'.
 string :: Text -> (a -> String) -> Table site a
-string h c = singleton (textToWidget h) (textToWidget . Text.pack . c)
+string h c = widget h (textToWidget . Text.pack . c)
 
 -- | Identical to 'widget', with the convenience of accepting 
 --   the table cell content as 'ByteString'. If the 'ByteString'
 --   is not encoded as UTF8-encoded text, the cell will display 
 --   text indicating that non-text data was given.
 bytestring :: Text -> (a -> ByteString) -> Table site a
-bytestring h c = singleton (textToWidget h) (bytestringToWidget . c)
+bytestring h c = widget h (bytestringToWidget . c)
   where bytestringToWidget b = case decodeUtf8' b of
           Left _ -> textToWidget (Text.pack "Unrenderable binary data")
           Right t -> toWidget (toHtml t)
@@ -131,17 +131,17 @@ bytestring h c = singleton (textToWidget h) (bytestringToWidget . c)
 -- | Identical to 'widget', with the convenience of accepting 
 --   the table cell content as 'Int'.
 int :: Text -> (a -> Int) -> Table site a
-int h c = singleton (textToWidget h) (textToWidget . Text.pack . Prelude.show . c)
+int h c = widget h (textToWidget . Text.pack . Prelude.show . c)
 
 -- | Identical to 'widget', with the convenience of accepting 
 --   the table cell content as any type with an instance of 'Show'.
 show :: (Show b) => Text -> (a -> b) -> Table site a
-show h c = singleton (textToWidget h) (textToWidget . Text.pack . Prelude.show . c)
+show h c = widget h (textToWidget . Text.pack . Prelude.show . c)
 
 -- | Identical to 'widget', but allow to format the output with the syntax of 'Text.Printf.printf'
 -- The datatype used must be an instance of 'Text.Printf.PrintfArg'
 printf :: (Printf.PrintfArg b) => Text -> String -> (a -> b) -> Table site a
-printf h format c = singleton (textToWidget h) (textToWidget . Text.pack . Printf.printf format . c)
+printf h format c = widget h (textToWidget . Text.pack . Printf.printf format . c)
 
 -- | Convenience function for building a plaintext link where the link text and the route are 
 --   determined by the row of data. If you are working with an 
@@ -161,7 +161,7 @@ linked :: Text               -- ^ Column name
        -> (a -> Text)        -- ^ Text extracting function
        -> (a -> Route site)  -- ^ Route extracting function
        -> Table site a       
-linked h propFunc routeFunc = singleton (textToWidget h) render
+linked h propFunc routeFunc = widget h render
   where render a = asWidgetIO [whamlet|<a href=@{routeFunc a}>#{propFunc a}|]
 
 -- | Prevents showing values
