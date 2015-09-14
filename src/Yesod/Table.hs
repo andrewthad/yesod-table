@@ -93,12 +93,14 @@ instance Divisible (Table site) where
 --   The first argument is a widget that is the
 --   content to be displayed in the table header. The second argument is the
 --   a function that consumes a value to produce the content shown in a row of the
---   table body. 
+--   table body. These widgets need to be wrapped in a th/td if you are
+--   using this function. 
 singleton :: WidgetT site IO () -> (a -> WidgetT site IO ()) -> Table site a
 singleton c h = Table (Seq.singleton (Column c h))
 
 -- | This is the same as 'singleton', with the convenience of accepting 
---   the table header as 'Text'.
+--   the table header as 'Text'. It also wraps the header widget in 
+--   a th element and wraps the cell widget in a td element.
 widget :: Text -> (a -> WidgetT site IO ()) -> Table site a
 widget h c = singleton (asWidgetIO [whamlet|<th>#{h}|]) (td . c)
   where td b = asWidgetIO [whamlet|<td>^{b}|]
