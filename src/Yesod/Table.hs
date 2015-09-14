@@ -100,7 +100,8 @@ singleton c h = Table (Seq.singleton (Column c h))
 -- | This is the same as 'singleton', with the convenience of accepting 
 --   the table header as 'Text'.
 widget :: Text -> (a -> WidgetT site IO ()) -> Table site a
-widget h c = singleton (textToWidget h) c
+widget h c = singleton (asWidgetIO [whamlet|<th>#{h}|]) (td . c)
+  where td b = asWidgetIO [whamlet|<td>^{b}|]
 
 -- | This is the same as 'widget', but the table cell content it produces
 --   is constant, meaning that the table cell in this column will be 
@@ -225,8 +226,8 @@ bool name f ifFalse ifTrue = widget name $ \a -> if f a then ifTrue a else ifFal
 --   for supporting other common table formats out of the box.
 buildBootstrap :: Table site a -> [a] -> WidgetT site IO ()
 buildBootstrap (Table cols) vals = table $ do
-  thead $ mapM_ (th . header) cols
-  tbody $ forM_ vals $ \val -> tr $ forM_ cols $ \col -> td $ cell col val
+  thead $ mapM_ header cols
+  tbody $ forM_ vals $ \val -> tr $ forM_ cols $ \col -> cell col val
   where table b  = asWidgetIO [whamlet|
                      <table.table.table-striped>^{b}
                    |]
@@ -234,12 +235,6 @@ buildBootstrap (Table cols) vals = table $ do
                      <thead>
                        <tr>
                          ^{b}
-                   |]
-        td b     = asWidgetIO [whamlet|
-                     <td>^{b}
-                   |]
-        th b     = asWidgetIO [whamlet|
-                     <th>^{b}
                    |]
         tbody b  = asWidgetIO [whamlet|
                      <tbody>^{b}
