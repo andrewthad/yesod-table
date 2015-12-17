@@ -208,7 +208,8 @@ whenWith defContents pred (Table cols) = Table $ fmap (\(Column h c) -> Column h
 --   is presented as it would be with the original table.
 --   When it is 'Nothing', the row is empty.
 maybe :: Table site a -> Table site (Maybe a)
-maybe = maybeWith mempty
+maybe = maybeWith (td (asWidgetIO mempty))
+  where td b = asWidgetIO [whamlet|<td>^{b}|]
 
 maybeWith :: WidgetT site IO () -> Table site a -> Table site (Maybe a)
 maybeWith defContents (Table cols) = Table $ fmap (\(Column h c) -> Column h (M.maybe defContents c)) cols
