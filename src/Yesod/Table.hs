@@ -209,6 +209,24 @@ whenWith defContents pred (Table cols) = Table $ fmap (\(Column h c) -> Column h
 --   passed in matches the 'Just' data constructor, the row
 --   is presented as it would be with the original table.
 --   When it is 'Nothing', the row is empty.
+--
+--   As an example, imagine that in the data model for some
+--   application, there exists a @User@ and an @Item@. Each
+--   @Item@ can belong to either one or zero @User@s. We
+--   may build a table as follows:
+--
+--   > userTable :: Table site User
+--   > userTable = ...
+--   >
+--   > itemTable :: Table site Item
+--   > itemTable = ...
+--   >
+--   > itemWithUserTable :: Table site (Item, Maybe User)
+--   > itemWithUserTable = mconcat
+--   >   [ contramap fst itemTable
+--   >   , contramap snd (Table.maybe peopleTable)
+--   >   ]
+--
 maybe :: Table site a -> Table site (Maybe a)
 maybe = maybeWith (td (asWidgetIO mempty))
   where td b = asWidgetIO [whamlet|<td>^{b}|]
