@@ -18,6 +18,7 @@ library
                      , contravariant   >= 1.0
                      , text         >= 1.0
                      , bytestring   >= 0.9
+                     , semigroups   >= 0.16.2.2
   exposed-modules:     Yesod.Table
   default-extensions:  QuasiQuotes
                      , GeneralizedNewtypeDeriving
