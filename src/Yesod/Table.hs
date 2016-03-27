@@ -57,6 +57,7 @@ import           Data.Functor.Contravariant
 import           Data.Functor.Contravariant.Divisible
 import qualified Data.Maybe                           as M
 import           Data.Monoid
+import           Data.Semigroup                       (Semigroup)
 import           Data.Sequence                        (Seq)
 import qualified Data.Sequence                        as Seq
 import           Data.Text                            (Text)
@@ -67,7 +68,7 @@ import           Yesod.Core
 import           Yesod.Core.Widget
 
 newtype Table site a = Table (Seq (Column site a))
-  deriving (Monoid)
+  deriving (Semigroup, Monoid)
 
 data Column site a = Column
   { header :: !(WidgetT site IO ())
@@ -322,4 +323,3 @@ asWidgetIO = id
 
 textToWidget :: Text -> WidgetT site IO ()
 textToWidget = toWidget . toHtml
-
