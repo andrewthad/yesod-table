@@ -1,7 +1,10 @@
 name:                yesod-table
 version:             2.0.3
 synopsis:            HTML tables for Yesod
-description:         HTML tables for Yesod
+description:
+  HTML tables for Yesod
+  .
+  Deprecated in favor of `colonnade` and `yesod-colonnade`
 license:             MIT
 license-file:        LICENSE
 author:              Andrew Martin

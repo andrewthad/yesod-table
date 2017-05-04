@@ -1,6 +1,12 @@
 yesod-table
 ===========
 
+**Note**: This package is deprecated in favor of
+[colonnade](http://hackage.haskell.org/package/colonnade) and
+[yesod-colonnade](http://hackage.haskell.org/package/yesod-colonnade). To the 
+author's knowledge, everything still works, but this package will not be
+maintained.
+
 #### What is yesod-table?
 This is a library that provides an abstraction for building HTML tables. A table is 
 parameterized over a foundation type `site` and any type `a`. The table is a collection
